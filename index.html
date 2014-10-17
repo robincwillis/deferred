@@ -28,10 +28,12 @@ function asyncEvent2(){
 };
 
 Deferred.when(asyncEvent(), asyncEvent2()).then(
+
 	function(status1, status2){
 		console.log(status1 +" : "+ status2 + ', resolved');
 	},
 	function(status1, status2, status3){
+
 		console.log(status1 +" : "+ status2 + ', failed');
 	}
 );
