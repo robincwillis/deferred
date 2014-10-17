@@ -21,7 +21,8 @@ function asyncEvent(){
 function asyncEvent2(){
 	var dfd = new Deferred();
 	setTimeout(function(){
-		dfd.resolve('hurray');
+		//dfd.resolve('hurray');
+		dfd.reject('hurray');
 	}, Math.floor(Math.random()*1500));
 	return dfd.promise();
 };
@@ -31,7 +32,7 @@ Deferred.when(asyncEvent(), asyncEvent2()).then(
 		console.log(status1 +" : "+ status2 + ', resolved');
 	},
 	function(status1, status2, status3){
-		console.log(status1 + status2 + ', failed');
+		console.log(status1 +" : "+ status2 + ', failed');
 	}
 );
 

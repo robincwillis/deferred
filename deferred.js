@@ -11,12 +11,13 @@ function Deferred(fn) {
 	var promise = {
 
 		done: function(){
+			console.log('done called');
 			for(var i = 0; i < arguments.length; i++){
-
 				if(isArray(arguments[i])){
 					var arr = arguments[i];
 					for(var j = 0; j < arr.length; j++){
 						if(status === 'rejected'){
+							console.log('rejected');
 							arr[j].apply(this, resultArgs);
 						}
 						failsFuncs.push(arr[j]);
@@ -24,7 +25,7 @@ function Deferred(fn) {
 
 				}else{
 					if(status === 'resolved'){
-
+						console.log('rejected');
 						arguments[i].appy(this, resultArgs);
 					}
 					doneFuncs.push(arguments[i]);
@@ -32,8 +33,8 @@ function Deferred(fn) {
 			}
 			return this;
 		},
-
 		fail: function(){
+			console.log('fail called');
 			for (var i = 0; i < arguments.length; i++){
 				if(isArray(arguments[i])){
 					var arr = arguments[i];
@@ -61,7 +62,6 @@ function Deferred(fn) {
 				this.done(arguments[0]);
 			}
 		},
-
 		promise : function(obj){
 			if(obj == null){
 				return promise;
@@ -97,9 +97,11 @@ function Deferred(fn) {
 			return this;
 		},
 		resolve : function(){
+			console.log('resolve called now');
 			return this.resolveWith(this, arguments);
 		},
 		reject : function(){
+			console.log('reject called now');
 			return this.rejectWith(this, arguments);
 		},
 	}
@@ -115,40 +117,29 @@ function Deferred(fn) {
 
 Deferred.when = function(){
 
-		return (function(args){
-			var df = Deferred(),
-			size = args.length,
-			done = 0,
-			rp = new Array(size);
+	return (function(args){
+		var dfd = Deferred();
+		var done = 0;
+		var rp = new Array(args.length);
 
-			for(var i = 0; i < args.length; i++){
-				(function(j){
-					var obj = null;
-					//this guy is done
-					if(args[j].done){
-						args[j].done(function(){
-							rp[j] = (arguments.length < 2) ? arguments[0] : arguments;
-							if(++ done == size){
-								df.resolve.apply(df, rp);
-							}
-
-						})
-						// .fail(function(){
-						// 	df.reject(arguments);
-						// })
-					//this guy is not done
-					}else{
-						obj = args[j];
-						args[j] = new Deferred();
-						args[j].done(function(){
-							rp[j] = (arguments.length < 2) ? arguments[0] : arguments;
-							if(++done == size){
-								df.resolve.apply(df, rp);
-							}
-						})
+		for(var i=0; i < args.length; i++){
+			(function(j){
+				args[j]
+				.done(function(){
+					rp[j] = (arguments.length < args.length) ? arguments[0] : arguments;
+					if(++ done == args.length){
+						dfd.resolve.apply(dfd, rp);
 					}
-				})(i);
-			}
-			return df.promise();
-		})(arguments);
-}
+				})
+				.fail(function(){
+					rp[j] = (arguments.length < args.length) ? arguments[0] : arguments;
+					if(++ done == args.length){
+						dfd.reject.apply(dfd, rp);
+					}
+				})
+			})(i)
+		};
+		return dfd.promise();
+	})(arguments)
+
+};
